@@ -1,17 +1,11 @@
-# Background
-
-Botan and Bouncy Castle implemented Shoup's version of ECIES, but we Hotstar Security Team found that it was hard to find an 
-implementation of the Shoup's version of ECIES in Golang package, which results that the interactions of ECIES encrypted data 
-among ecosystems coding in different languages are difficult. Therefore, we implemented one and give it back to the community.
-
 # Introduction
 
-This package is an implementation of Elliptic Curve Integrated Encryption Scheme (ECIES).
-It follows the specification recommended in the [paper](https://www.shoup.net/papers/iso-2_1.pdf) from Victor Shoup.
-We call it the Shoup's version of ECIES.
+This package is an implementation of the Elliptic Curve Integrated Encryption Scheme (ECIES), following the specification recommended in [Victor Shoup's paper](https://www.shoup.net/papers/iso-2_1.pdf). We refer to this implementation as the "Shoup's version" of ECIES.
 
-Referring to the [wiki](https://www.cryptopp.com/wiki/Elliptic_Curve_Integrated_Encryption_Scheme), the Botan and Bouncy Castle
-implemented Shoup's version of ECIES, so our implementation is compatible with them.
+We noticed that while Botan and Bouncy Castle have implemented the Shoup's version of ECIES, we could not find a Golang package that implemented it. As a result, interactions of ECIES-encrypted data among ecosystems coded in different languages can be difficult. To address this, the Disney+Hotstar Security Team implemented the Shoup's version of ECIES in Golang and is contributing it back to the community.
+
+According to the [wiki](https://www.cryptopp.com/wiki/Elliptic_Curve_Integrated_Encryption_Scheme), our implementation is compatible with the Botan and Bouncy Castle implementations.
+
 
 #### The encryption flow is as follows:
 
