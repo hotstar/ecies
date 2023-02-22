@@ -80,10 +80,10 @@ func example1() {
 
 There are four key parts in the ECIES. They are Key Agreement, Key Derivation Function, Symmetric Cipher, and
 MAC. In our implementation, we provide interface for each of them so that developers can have their own 
-implementations. We can use this method ```shoupecies.NewCustom()``` to use our own component. We can also switch
+implementations. We can use this method ```ecies.NewCustomizedECIES``` to use our own component. We can also switch
 to different curve by set the variable ```CURVE```
 
-Also, we provide a default implementation using this method ```shoupecies.New``` , the following is the details.
+Also, we provide a default implementation using this method ```ecies.NewECIES``` , the following is the details.
 
 | Part                    | Spec                 | Comment                             |
 |-------------------------|----------------------|-------------------------------------|
