@@ -148,7 +148,7 @@ Refer to [here](https://pkg.go.dev/crypto/elliptic) to get more details about th
 | 128                   | 71317                   | 2747494                 |
 | 256                   | 90165                   | 3709487                 |
 
-#### Compatibility
+# Compatibility
 
 So far, we have verified the compatibility with C++ Botan and Java BouncyCastle. Let's take the BouncyCastle as an example. 
 
