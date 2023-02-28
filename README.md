@@ -150,7 +150,7 @@ Refer to [here](https://pkg.go.dev/crypto/elliptic) to get more details about th
 
 #### Compatibility
 
-So far, we tested the compatibility with C++ Botan and Java BouncyCastle. Let's take the BouncyCastle as an example. 
+So far, we have verified the compatibility with C++ Botan and Java BouncyCastle. Let's take the BouncyCastle as an example. 
 
 + BouncyCastle
 
