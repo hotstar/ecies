@@ -148,3 +148,133 @@ Refer to [here](https://pkg.go.dev/crypto/elliptic) to get more details about th
 | 128                   | 71317                   | 2747494                 |
 | 256                   | 90165                   | 3709487                 |
 
+#### Compatibility
+
+So far, we have verified the compatibility with C++ Botan and Java BouncyCastle. Let's take the BouncyCastle as an example. 
+
++ BouncyCastle
+
+```xml
+<dependency>
+   <groupId>org.bouncycastle</groupId>
+   <artifactId>bcpkix-jdk18on</artifactId>
+   <version>1.71</version>
+</dependency>
+```
+
+```java
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.spec.ECGenParameterSpec;
+import javax.crypto.Cipher;
+import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.engines.IESEngine;
+import org.bouncycastle.crypto.generators.KDF2BytesGenerator;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PKCS7Padding;
+import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.bouncycastle.crypto.util.DigestFactory;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.IESCipher;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.IESParameterSpec;
+import org.bouncycastle.util.BigIntegers;
+import org.bouncycastle.util.encoders.Hex;
+
+public class BouncyCastleECIES {
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    private static final String EC_ALGORITHM_NAME = "EC";
+    private static final String CURVE = "secp256r1";
+
+    private static final IESParameterSpec IES_PARAMETER_SPEC_FOR_AES_CBC =
+        new IESParameterSpec(null, null, 128, 128, null);
+
+    public static byte[] encrypt(byte[] plainText, BCECPublicKey publicKey) throws Exception {
+        IESCipher cipher = getIESCipher();
+        cipher.engineInit(Cipher.ENCRYPT_MODE, publicKey, IES_PARAMETER_SPEC_FOR_AES_CBC, new SecureRandom());
+        return cipher.engineDoFinal(plainText, 0, plainText.length);
+    }
+
+    public static byte[] decrypt(byte[] cipherText, BCECPrivateKey privateKey) throws Exception {
+        IESCipher cipher = getIESCipher();
+        cipher.engineInit(Cipher.DECRYPT_MODE, privateKey, IES_PARAMETER_SPEC_FOR_AES_CBC, new SecureRandom());
+        return cipher.engineDoFinal(cipherText, 0, cipherText.length);
+    }
+
+
+    public static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator keyGenerator =
+            KeyPairGenerator.getInstance(EC_ALGORITHM_NAME, BouncyCastleProvider.PROVIDER_NAME);
+        keyGenerator.initialize(new ECGenParameterSpec(CURVE));
+        KeyPair keyPair = keyGenerator.generateKeyPair();
+        return keyPair;
+    }
+
+    public static String serializePrivateKey(BCECPrivateKey privateKey) {
+        byte[] bytes = BigIntegers.asUnsignedByteArray(privateKey.getD());
+        return Hex.toHexString(bytes);
+    }
+
+    public static String serializePublicKey(BCECPublicKey publicKey) throws Exception {
+        byte[] bytes = publicKey.getQ().getEncoded(false);
+        return Hex.toHexString(bytes);
+    }
+
+    private static IESCipher getIESCipher() {
+        IESCipher cipher = new IESCipher(
+            new IESEngine(
+                new ECDHBasicAgreement(),
+                new KDF2BytesGenerator(new SHA256Digest()),
+                new HMac(DigestFactory.createSHA256()),
+                new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()), new PKCS7Padding())), 0);
+        return cipher;
+    }
+
+    // we can test the compatibility using the output data
+    public static void main(String[] args) throws Exception {
+        String msg="hello_ECIES";
+        KeyPair keyPair = generateKeyPair();
+        BCECPublicKey publicKey = (BCECPublicKey) keyPair.getPublic();
+        BCECPrivateKey privateKey = (BCECPrivateKey) keyPair.getPrivate();
+        System.out.println("privateKeyString: "+serializePrivateKey(privateKey));
+        System.out.println("publicKeyString: "+serializePublicKey(publicKey));
+        byte[] encData = encrypt(msg.getBytes(), publicKey);
+        System.out.println("encMessage: "+Hex.toHexString(encData));
+        byte[] plainData = decrypt(encData, privateKey);
+        System.out.println(new String(plainData));
+    }
+}
+```
+
+By the code above, we output the privateKeyString and the encMessage. We can decrypt using the Go implementation below.
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/hotstar/ecies"
+)
+
+func main() {
+	privateKeyString := "" 
+	encMessage := ""
+
+	privateKey := ecies.DeserializePrivateKey(ecies.HexDecodeWithoutError(privateKeyString))
+	cipher := ecies.NewECIES()
+	palinMessage, _ := cipher.Decrypt(privateKey, ecies.HexDecodeWithoutError(encMessage))
+	fmt.Println(string(palinMessage))
+}
+
+```
