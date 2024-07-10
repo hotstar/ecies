@@ -20,12 +20,12 @@ func NewEcsvdpDhKeyAgreement() *EcsvdpDhKeyAgreement {
 	return &EcsvdpDhKeyAgreement{}
 }
 
-//CalculateAgreement calculate a key following 1363 7.2.1 ECSVDP-DH
+// CalculateAgreement calculate a key following 1363 7.2.1 ECSVDP-DH
 func (ka *EcsvdpDhKeyAgreement) CalculateAgreement(privateKey *PrivateKey, anotherPublicKey *PublicKey) ([]byte, error) {
-	if anotherPublicKey == nil {
+	if anotherPublicKey == nil || anotherPublicKey.X == nil || anotherPublicKey.Y == nil {
 		return nil, invalidEphemeralPublicKey
 	}
-	if privateKey == nil {
+	if privateKey == nil || privateKey.D == nil || privateKey.Curve == nil {
 		return nil, invalidPrivateKey
 	}
 
