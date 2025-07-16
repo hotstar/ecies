@@ -60,4 +60,8 @@ func TestKeySerialization(t *testing.T) {
 		assert.NotNil(t, privateKey)
 		assert.True(t, bytesEquals(k.D.Bytes(), privateKey.D.Bytes()))
 	}
+
+	{
+		assert.True(t, bytesEquals(nil, nil))
+	}
 }

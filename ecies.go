@@ -141,13 +141,7 @@ func (ecies *ECIES) Decrypt(privateKey *PrivateKey, msg []byte) ([]byte, error) 
 }
 
 func bytesEquals(b1 []byte, b2 []byte) bool {
-	if b1 == nil && b2 == nil {
-		return true
-	}
-	if b1 == nil || b2 == nil {
-		return false
-	}
-	return string(b1) == string(b2)
+	return bytes.Equal(b1, b2)
 }
 
 // as described in Shoup's paper and P1363a
