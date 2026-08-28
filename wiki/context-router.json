@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "default_for_code_changes": "skip_wiki",
+  "generated_from": ["wiki/index.md", "wiki/map.md", "wiki pages"],
+  "routes": [
+    {
+      "name": "repo-onboarding",
+      "intent": "repo-onboarding",
+      "confidence": "high",
+      "coverage": "strong",
+      "match": {
+        "keywords": ["ecies", "overview", "onboarding", "what is", "purpose"],
+        "paths": [],
+        "symbols": ["NewECIES", "GenerateKey"]
+      },
+      "read": ["overview/repo-overview.md", "api/public-api.md", "architecture/module-structure.md"],
+      "reason": "New contributors need to understand the ECIES library purpose, architecture, and API."
+    },
+    {
+      "name": "api-contract-change",
+      "intent": "api-contract-change",
+      "confidence": "high",
+      "coverage": "strong",
+      "match": {
+        "keywords": ["encrypt", "decrypt", "api", "interface", "method"],
+        "paths": [],
+        "symbols": ["Encrypt", "Decrypt", "KeyAgreement", "KeyDerivationFunction", "SymmetricCipher"]
+      },
+      "read": ["api/public-api.md"],
+      "reason": "API changes must honor the ECIES interfaces and public contract."
+    },
+    {
+      "name": "architecture-change",
+      "intent": "architecture-change",
+      "confidence": "high",
+      "coverage": "strong",
+      "match": {
+        "keywords": ["architecture", "component", "module", "structure", "flow"],
+        "paths": [],
+        "symbols": ["SetCurve", "NewCustomizedECIES", "GetECPointByteLength"]
+      },
+      "read": ["architecture/module-structure.md", "architecture/dependencies.md"],
+      "reason": "Architecture changes should respect the ECIES component boundaries and dependency model."
+    },
+    {
+      "name": "domain-behavior-change",
+      "intent": "domain-behavior-change",
+      "confidence": "medium",
+      "coverage": "partial",
+      "match": {
+        "keywords": ["tradeoff", "edge case", "compatibility", "performance"],
+        "paths": [],
+        "symbols": []
+      },
+      "read": ["decisions/known-tradeoffs-and-rejected-alternatives.md", "domains/external-edge-cases.md"],
+      "reason": "Important design decisions and edge cases that may affect implementation changes."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+# code-doc-config.yaml
+#
+# Template for the code-ingestion-agent. On first run the agent copies this
+# into `wiki/code-doc-config.yaml` at the repository root; edit that copy.
+#
+# It declares WHICH code-derivable facts you actually want written into the
+# wiki. Turn a category OFF when you would rather the main session agent infer
+# it live each time from the code, or when it's not worth the effort to derive it in advance.
+
+# Path filters applied before any analysis. Globs are relative to the repo root.
+# (.gitignore is always respected; secret files are never read regardless.)
+scan:
+  include:
+    - "**/*"                 # analyze everything by default
+  exclude:
+    - "**/node_modules/**"
+    - "**/build/**"
+    - "**/.git/**"
+
+# What to derive. true = write/update durable engineering context in the wiki;
+# false = skip and leave it for the main agent to infer at session time. Enabled
+# categories should produce onboarding, architecture, decision, contract,
+# operational, or cross-module guidance, not low-level code mirrors. The comment
+# after each key is the wiki/ subdirectory the page is routed to.
+#
+# This is also the wiki-wide ALLOWLIST for which folders may receive content
+# from ANY supported source (code or linked external prose like Confluence /
+# Google Docs / Google Sheets / PRs / commits). A folder is "enabled" when at least one key
+# below that maps to it is true; content routing only to a disabled folder is
+# skipped and reported. `decisions/` has no key here and is ALWAYS enabled.
+# `scan.*` above bounds only the code that is read, not prose sources.
+# See wiki/SCHEMA.md -> "Documentation scope" for the full folder mapping.
+document:
+  overview: true            # repo purpose, top-level layout            -> overview/
+  module_structure: true    # high-level packages/modules and responsibilities -> architecture/
+  architecture: true        # component relationships, boundaries        -> architecture/
+  public_api: true          # stable contracts, important endpoints      -> api/
+  internal_api: false       # stable internal contracts only             -> api/
+  data_models: true         # schemas, entities, DB tables, messages     -> data/
+  data_flow: true           # how data moves between components          -> data/
+  domain_concepts: true     # ubiquitous-language terms in the code      -> domains/
+  dependencies: true        # external libraries and their role          -> architecture/
+  configuration: true       # env vars, config files, feature flags      -> engineering/
+  build_test_deploy: true   # build/test/deploy/run commands             -> engineering/
+  entry_points: true        # CLI mains, servers, handlers, jobs         -> architecture/
+  conventions: false        # code patterns/idioms (often inferred live)  -> engineering/
+  error_handling: false     # error/exception/retry strategy             -> architecture/
+  operations: false         # health checks, metrics, runbook-able code  -> operations/
+
+options:
+  # How to handle a fact derived from code that contradicts an existing page.
+  #   record-for-human (default) -> keep both, flag under "## Conflicts"
+  #   code-wins                  -> overwrite the page with the code-derived fact
+  #   docs-win                   -> keep the doc, note the divergence only
+  conflict_policy: record-for-human
+  # Keep generated pages skimmable; cap heading nesting depth.
+  max_page_depth: 3
+  # Annotate each derived section with the source file path(s) it came from.
+  cite_sources: true

@@ -1,0 +1,277 @@
+# readiness-config.yaml
+#
+# Default topic configuration for the llm-wiki readiness scan.
+# On bootstrap, this template should be copied to `wiki/readiness-config.yaml`
+# after giving the repo owner a chance to edit it.
+#
+# Repo owners may:
+# - disable topics that do not apply to the repo
+# - change topic weights
+# - add repo-specific topics
+# - edit titles, descriptions, and search hints
+# - set `execution_required: true` for sections where documented commands
+#   should be run during readiness verification
+#
+# Repo owners may NOT configure the scoring rubric here.
+# The readiness analyzer always uses the fixed rubric:
+#   0 = no relevant documentation found
+#   1 = weak hint only
+#   2 = partial documentation
+#   3 = actionable documentation
+#   4 = complete documentation
+#
+# The final score is normalized by the sum of enabled topic weights, so weights
+# do not need to add up to 100. Defaults are weighted for relative importance.
+#
+# execution_required:
+# - Optional per-topic boolean; default is false when omitted.
+# - true means the readiness agent should verify docs AND actually run relevant
+#   documented commands in the target repo.
+# - false means the readiness agent should only inspect documentation and code
+#   evidence for that topic; it must not execute commands for that topic.
+# - The agent verifies commands it discovers in docs for the topic.
+# - Unsafe commands are not run automatically. This includes destructive
+#   commands, deploy/release/production mutations, commands requiring secrets,
+#   and commands whose effect is unclear. The agent will ask whether to run
+#   them or mark them as manually accepted and skipped; skipped commands are
+#   highlighted in the readiness report.
+# - To opt into command verification for a section, set:
+#     execution_required: true
+
+version: 1
+
+readiness:
+  topics:
+    - id: service-setup
+      title: How to set up the service
+      enabled: true
+      execution_required: true
+      weight: 12
+      description: >
+        Documents how to install prerequisites and dependencies, configure the
+        local machine, define per-environment variables and config files, start
+        the service locally, verify it is running, and reset local state when
+        setup fails.
+      search_hints:
+        - local setup
+        - development setup
+        - getting started
+        - run locally
+        - prerequisites
+        - install dependencies
+        - environment variables
+        - env vars
+        - .env.example
+        - required variables
+    - id: local-testing-environment
+      title: How to set up an environment for local testing
+      enabled: true
+      execution_required: true
+      weight: 10
+      description: >
+        Documents how to configure an environment for local testing, including
+        local-only variables, test config files, seeded data or fixtures, mocked
+        services, ports, dependencies, and verification steps before tests run.
+      search_hints:
+        - local testing environment
+        - test environment setup
+        - .env.test
+        - test config
+        - seed data
+        - mock services
+    - id: test-commands
+      title: How to run tests
+      enabled: true
+      execution_required: true
+      weight: 14
+      description: >
+        Documents how to run unit tests, service-level tests, and end-to-end or
+        integration tests, including required dependencies, test data, flags,
+        and common failure modes.
+      search_hints:
+        - unit tests
+        - service tests
+        - integration tests
+        - e2e tests
+        - test data
+        - test command
+    - id: iac-info
+      title: IaC info
+      enabled: true
+      execution_required: false
+      weight: 8
+      description: >
+        Documents infrastructure-as-code layout, ownership, environments,
+        deployment targets, cloud resources, Terraform, Helm, Kubernetes, or
+        equivalent infrastructure workflows.
+      search_hints:
+        - infrastructure
+        - iac
+        - terraform
+        - helm
+        - kubernetes
+        - cloud resources
+      # Keep false by default because IaC commands often inspect or mutate
+      # remote infrastructure and may require production credentials.
+
+    - id: production-context
+      title: Production context
+      enabled: true
+      execution_required: false
+      weight: 12
+      description: >
+        Documents a concise, agent-facing summary of production runtime facts
+        that should guide coding agents, reviewers, and automation during code
+        changes, operational planning, incident follow-up, and release review.
+        This topic should capture only change constraints, hot paths,
+        production service identity, validation pointers, and risky change
+        patterns, then link to canonical architecture, operations, API, data,
+        and release docs for details.
+      search_hints:
+        - production context
+        - prod context
+        - change context
+        - agent context
+        - hot path
+        - latency budget
+        - p95
+        - p99
+        - service alias
+        - production service name
+        - validation pointer
+        - feature flag
+        - rollback
+        - unsafe change
+      # Keep false by default because validation may require production
+      # dashboards, traces, credentials, or other privileged access.
+
+    - id: customer-context
+      title: Customer context
+      enabled: true
+      execution_required: false
+      weight: 10
+      description: >
+        Documents customer, caller, and product-journey context that should
+        guide coding agents, reviewers, and automation during code changes,
+        product review, operational planning, and release review, especially
+        context that lives outside code: which customer experiences invoke the
+        service, which clients or platforms call it, customer-visible impact,
+        business rules, customer segments, and human-known edge cases.
+      search_hints:
+        - customer context
+        - caller context
+        - customer flow
+        - customer journey
+        - product journey
+        - user journey
+        - client caller
+        - mobile caller
+        - web caller
+        - customer impact
+        - business rule
+        - customer segment
+        - edge case
+
+    - id: hermetic-build
+      title: How to generate hermetic server/build
+      enabled: true
+      execution_required: true
+      weight: 10
+      description: >
+        Documents how to generate a reproducible build, server binary, container,
+        package, or other artifact from the codebase, including pinned tooling,
+        build inputs, and verification steps.
+      search_hints:
+        - hermetic build
+        - reproducible build
+        - server build
+        - build artifact
+        - container image
+        - release artifact
+    - id: code-and-naming-conventions
+      title: Code and naming conventions
+      enabled: true
+      execution_required: false
+      weight: 8
+      description: >
+        Documents repo-specific coding style, naming rules, folder conventions,
+        patterns to follow, review expectations, and examples of preferred code
+        organization.
+      search_hints:
+        - coding conventions
+        - naming conventions
+        - style guide
+        - code style
+        - folder conventions
+        - contribution guidelines
+
+    - id: secrets-config-management
+      title: Secrets and config management rules
+      enabled: true
+      execution_required: false
+      weight: 10
+      description: >
+        Documents how secrets are stored, accessed, rotated, and kept out of the
+        repo, including secret manager usage, local development rules, and what
+        must never be committed.
+      search_hints:
+        - secrets
+        - credentials
+        - secret manager
+        - vault
+        - rotation
+        - config management
+      # Keep false by default because verification may require secrets or
+      # privileged secret-manager access.
+
+    - id: branching-release-conventions
+      title: Branching and release conventions
+      enabled: true
+      execution_required: false
+      weight: 8
+      description: >
+        Documents branch naming, pull request expectations, merge rules, release
+        process, versioning, changelog expectations, deployment gates, and
+        rollback conventions.
+      search_hints:
+        - branch naming
+        - release process
+        - versioning
+        - changelog
+        - pull request
+        - rollback
+      # Keep false by default because release, deploy, and rollback commands
+      # may mutate production or remote state.
+
+    - id: external-edge-cases
+      title: Edge cases decided outside code
+      enabled: true
+      execution_required: false
+      weight: 10
+      description: >
+        Documents important product, business, operational, or customer edge
+        cases whose behavior is decided outside the code and may not be obvious
+        from implementation alone.
+      search_hints:
+        - edge cases
+        - special cases
+        - product decision
+        - business rule
+        - exception handling
+        - customer behavior
+
+    - id: tradeoffs-rejected-alternatives
+      title: Known tradeoffs and rejected alternatives
+      enabled: true
+      execution_required: false
+      weight: 10
+      description: >
+        Documents architectural decisions, known tradeoffs, rejected approaches,
+        ADRs, RFCs, migration decisions, and why the current design was chosen.
+      search_hints:
+        - tradeoffs
+        - rejected alternatives
+        - adr
+        - rfc
+        - decision record
+        - design decision
